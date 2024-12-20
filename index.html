@@ -180,25 +180,24 @@
     }
 
     function checkGameOver() {
-  for (let i = 0; i < 16; i++) {
-    const current = tiles[i];
-    const right = i % 4 < 3 ? tiles[i + 1] : null;
-    const down = i < 12 ? tiles[i + 4] : null;
+      for (let i = 0; i < 16; i++) {
+        const current = tiles[i];
+        const right = i % 4 < 3 ? tiles[i + 1] : null;
+        const down = i < 12 ? tiles[i + 4] : null;
 
-    // Check if the current tile can merge or if there are empty spaces
-    if (
-      !current.dataset.value ||
-      (right && current.dataset.value === right.dataset.value) ||
-      (down && current.dataset.value === down.dataset.value)
-    ) {
-      return; // Moves are still possible
+        // Check if the current tile can merge or if there are empty spaces
+        if (
+          !current.dataset.value ||
+          (right && current.dataset.value === right.dataset.value) ||
+          (down && current.dataset.value === down.dataset.value)
+        ) {
+          return; // Moves are still possible
+        }
+      }
+
+      // No moves available
+      gameOverElement.style.display = 'block';
     }
-  }
-
-  // No moves available
-  gameOverElement.style.display = 'block';
-}
-
 
     function gameOver() {
       gameOverElement.style.display = 'block';
@@ -206,9 +205,46 @@
 
     restartButton.addEventListener('click', initializeBoard);
 
+    // Swipe controls logic
+    let startTouch = null;
+
+    window.addEventListener('touchstart', (e) => {
+      startTouch = e.touches[0];
+    });
+
+    window.addEventListener('touchend', (e) => {
+      if (!startTouch) return;
+      const endTouch = e.changedTouches[0];
+
+      const deltaX = endTouch.clientX - startTouch.clientX;
+      const deltaY = endTouch.clientY - startTouch.clientY;
+
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) {
+          move('ArrowRight');
+        } else {
+          move('ArrowLeft');
+        }
+      } else {
+        if (deltaY > 0) {
+          move('ArrowDown');
+        } else {
+          move('ArrowUp');
+        }
+      }
+      startTouch = null;
+    });
+
+    // Keyboard controls
     window.addEventListener('keydown', (e) => {
-      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        move(e.key);
+      if (e.key === 'ArrowUp') {
+        move('ArrowUp');
+      } else if (e.key === 'ArrowDown') {
+        move('ArrowDown');
+      } else if (e.key === 'ArrowLeft') {
+        move('ArrowLeft');
+      } else if (e.key === 'ArrowRight') {
+        move('ArrowRight');
       }
     });
 
